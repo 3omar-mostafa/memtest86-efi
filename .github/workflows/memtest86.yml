@@ -1,0 +1,49 @@
+name: Memtest86_Release
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+  # Auto run this workflow every two months
+  schedule:
+  - cron:  '0 0 1 * 1'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Extract EFI Partition
+        run: |
+          chmod a+x ./extract.sh
+          sudo ./extract.sh # Outputs two files: memtest86_efi.zip memtest86_efi.zip.sha512
+          ls -1
+
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+
+      - name: Get Version Info
+        run: |
+          pip3 install -r requirements.txt
+          python3 get_version.py changelog_file version_long_file version_file
+
+          # Export Environment Variables to use in the next step
+          echo "VERSION=$(cat version_file)" >> $GITHUB_ENV
+          echo "VERSION_NAME=$(cat version_long_file)" >> $GITHUB_ENV
+          
+          echo -e "\nSHA512 Cheksum" >> changelog_file
+          cat memtest86_efi.zip.sha512 >> changelog_file
+
+      - name: Release Files
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "Memtest86 ${{ env.VERSION_NAME }}"
+          body_path: changelog_file
+          tag_name: ${{ env.VERSION }}
+          files: memtest86_efi.zip*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
