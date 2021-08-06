@@ -38,7 +38,22 @@ jobs:
           echo -e "\nSHA512 Cheksum" >> changelog_file
           cat memtest86_efi.zip.sha512 >> changelog_file
 
+
+      - name: Check if we already released this version to skip Release File Step
+        run: |
+          sudo apt update && sudo apt install jq -y # CLI JSON Parser
+          
+          latest_release_name=$(curl -fs -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"  \ 
+          https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .name)
+          
+          if [[ "Memtest86 ${{ env.VERSION_NAME }}" == "${latest_release_name}" ]]; then
+            echo "RELEASE=false" >> $GITHUB_ENV
+          else
+            echo "RELEASE=true" >> $GITHUB_ENV
+          fi
+          
       - name: Release Files
+        if: ${{ env.RELEASE  == "true" }}
         uses: softprops/action-gh-release@v1
         with:
           name: "Memtest86 ${{ env.VERSION_NAME }}"
