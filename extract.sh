@@ -21,12 +21,16 @@ unzip -q memtest86-usb.zip
 #
 # In the last line we can see that EFI System has start offset of 514048
 # But this is in Sectors not Bytes, We can see that Sector = 512
-# i.e. offset = 514048*512 = 263192576
+# i.e. offset = 514048 * 512 = 263192576
 # ==============================================================================
 
+# offset will be 263192576, but we calculate it dynamically in case it changed
+sector_offset=$(fdisk -lu memtest86-usb.img | grep EFI | cut -d' ' -f2)
+SECTOR_SIZE=512
+offset=$(( SECTOR_SIZE * sector_offset ))
 
 sudo mkdir -p /mnt/memtest
-sudo mount -o loop,offset=263192576 memtest86-usb.img /mnt/memtest/
+sudo mount -o loop,offset=${offset} memtest86-usb.img /mnt/memtest/
 mkdir memtest_efi
 sudo cp -r /mnt/memtest/EFI/BOOT/* ./memtest_efi
 sudo umount /mnt/memtest/
