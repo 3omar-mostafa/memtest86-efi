@@ -31,7 +31,7 @@ def main():
     version_long = whats_new_html.find('h3').text
     open(args.version_long_file, "w").write(version_long)
 
-    version = re.match(r"Version ([0-9](\.[0-9])*) .*", version_long, flags=re.IGNORECASE).group(1)
+    version = re.match(r"Version ([0-9]+(\.[0-9])*) .*", version_long, flags=re.IGNORECASE).group(1)
     build = ''
     try :
         build = re.match(r"Version.*Build ([0-9]+).*", version_long, flags=re.IGNORECASE).group(1)
