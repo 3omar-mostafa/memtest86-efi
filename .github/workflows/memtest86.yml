@@ -33,7 +33,9 @@ jobs:
 
           # Export Environment Variables to use in the next step
           echo "VERSION=$(cat version_file)" >> $GITHUB_ENV
+          echo "VERSION=$(cat version_file)"
           echo "VERSION_NAME=$(cat version_long_file)" >> $GITHUB_ENV
+          echo "VERSION_NAME=$(cat version_long_file)"
           
           echo -e "\nSHA512 Cheksum" >> changelog_file
           cat memtest86_efi.zip.sha512 >> changelog_file
