@@ -28,7 +28,7 @@ jobs:
 
       - name: Get Version Info
         run: |
-          pip3 install -r requirements.txt
+          pip3 install -r requirements.txt --quiet
           python3 get_version.py changelog_file version_long_file version_file
 
           # Export Environment Variables to use in the next step
